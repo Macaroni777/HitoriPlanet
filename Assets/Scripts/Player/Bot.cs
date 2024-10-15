@@ -91,7 +91,6 @@ namespace BotController
             cursorPosition = cursor.GetCursorPos();
             diff = (Vector3)cursorPosition - playerTransform.position;
             angle = Vector3.Angle(playerTransform.up, diff) * (diff.x < 0 ? -1 : 1);
-            Debug.Log(angle);
             return angle;
         }
         Direction devideDirection(float angle)

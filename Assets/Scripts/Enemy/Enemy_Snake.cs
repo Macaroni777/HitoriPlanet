@@ -22,7 +22,6 @@ public class Enemy_Snake : EnemyBase
         // 元々の起動時処理を実行
         base.OnAreaActivated();
 
-        Debug.Log("追加の起動時処理");
     }
 
     // Update

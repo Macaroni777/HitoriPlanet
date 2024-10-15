@@ -59,7 +59,6 @@ public class PlayerController : MonoBehaviour
             // 坂道の法線と同じ向きならば、足した時の絶対値が多くなる。絶対値が多い方で下っていることを検出する
             if (Math.Abs(-hit.normal.x + moveInput) < Math.Abs(hit.normal.x + moveInput))
             {
-                Debug.Log("下り坂を検出しました！");
                 rb.velocity += new Vector2(0.0f, -0.5f);
             }
         }
