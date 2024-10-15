@@ -49,6 +49,11 @@ public class PlayerController : MonoBehaviour
     private float knockbackTimer = 0.0f;        // ノックバックの時間を計測
     public bool isKnockBack = false;
 
+    bool isZeroGravity = false;
+    public float zeroGravityPower;
+    public int skillNumber = 2;
+    public int[] currentSkillGauge;
+
     void AdjustSpeedOnSlope(float moveInput)
     {
         RaycastHit2D hit = Physics2D.Raycast(groundCheck.position, Vector2.down, 5f, groundLayer);
@@ -102,10 +107,16 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    void Awake()
+    {
+        currentSkillGauge = new int[2] { 100, 1000 };
+        zeroGravityPower = 1000.0F;
+    }
+
     void Start()
     {
-        PhysicsMaterial2D lowFrictionMaterial = new PhysicsMaterial2D();
 
+        PhysicsMaterial2D lowFrictionMaterial = new PhysicsMaterial2D();
         groundSensor = GetComponentInChildren<ActorGroundSensor>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
@@ -121,13 +132,26 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetMouseButtonDown(1))
+        {
+            UseZeroGravity();
+        }
+        if (isZeroGravity)
+        {
+            zeroGravityPower -= Time.deltaTime * 500;
+            if (zeroGravityPower <= 0.0f)
+            {
+                rb.gravityScale = 1.0f;
+                isZeroGravity = false;
+            }
+        }
+
         if (!isKnockBack)
         {
             Move();
         }
         else
         {
-            Debug.Log("isKnockBack:" + isKnockBack);
             // ノックバック時間を計測して、経過したら通常の操作に戻す
             knockbackTimer -= Time.deltaTime;
             if (knockbackTimer <= 0)
@@ -153,7 +177,7 @@ public class PlayerController : MonoBehaviour
             invincibleTime -= Time.deltaTime;
             if (invincibleTime <= 0.0f)
             {// 無敵時間終了時処理
-                // 点滅終了
+             // 点滅終了
             }
         }
         // 硬直時間処理
@@ -203,7 +227,7 @@ public class PlayerController : MonoBehaviour
             {
                 // 移動入力がない場合はピタッと止まるようにする
                 rb.velocity = new Vector2(0f, rb.velocity.y);  // X軸方向の速度を0にする
-                // 坂道で滑らないようにX軸のみ固定する
+                                                               // 坂道で滑らないようにX軸のみ固定する
                 rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
             }
         }
@@ -213,40 +237,14 @@ public class PlayerController : MonoBehaviour
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         }
 
-
-
-
-
-
-        /*
-                // 坂道を登る処理
-                if ((!isJumping & groundSensor.isGround & moveInput != 0) || (isJumping & !groundSensor.isGround & moveInput == 0))
-                {
-
-                    // 位置固定解除
-                    rb.constraints = RigidbodyConstraints2D.None;
-                    rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-                    rb.velocity = new Vector2(moveSpeed * moveInput, rb.velocity.y);
-                    // 地面と接地している場合、速度を調整
-                    AdjustSpeedOnSlope(moveInput);
-
-                }
-                if (!isJumping & groundSensor.isGround & moveInput == 0)
-                {
-                    // 回転、位置ともに固定
-                    rb.constraints = RigidbodyConstraints2D.FreezeAll;
-                }
-        */
-
-
     }
 
     #region 戦闘関連
     /// <summary>
-	/// ダメージを受ける際に呼び出される
-	/// </summary>
-	/// <param name="damage">ダメージ量</param>
-	public void Damaged(int damage)
+    /// ダメージを受ける際に呼び出される
+    /// </summary>
+    /// <param name="damage">ダメージ量</param>
+    public void Damaged(int damage)
     {
         // プレイヤーの移動を無効にしてノックバックを適用
         isKnockBack = true;
@@ -331,4 +329,11 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
 
+
+    //無重力に関するメソッド
+    void UseZeroGravity()
+    {
+        isZeroGravity = true;
+        rb.gravityScale = 0.0f;
+    }
 }
