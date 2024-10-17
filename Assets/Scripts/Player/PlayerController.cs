@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     public bool rightFacing; // 向いている方向(true.右向き false:左向き)
 
-    public float moveSpeed = 5f;
+    public float moveSpeed = 2f;
     public Transform groundCheck;
     public LayerMask groundLayer;
 
@@ -53,20 +53,76 @@ public class PlayerController : MonoBehaviour
     public float zeroGravityPower;
     public int skillNumber = 2;
     public int[] currentSkillGauge;
+    public float testgroundcheck;
+    RaycastHit2D previousHit;
+    bool isGrounded = false;
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        // 接地するレイヤーの判定
+        if (collision.gameObject.tag == "Ground")
+        {
+            isGrounded = true;
+        }
+    }
 
+    void OnCollisionExit2D(Collision2D collision)
+    {
+        // 接地から離れた時の処理
+        if (collision.gameObject.tag == "Ground")
+        {
+            isGrounded = false;
+        }
+    }
     void AdjustSpeedOnSlope(float moveInput)
     {
-        RaycastHit2D hit = Physics2D.Raycast(groundCheck.position, Vector2.down, 5f, groundLayer);
+        RaycastHit2D hit = Physics2D.Raycast(groundCheck.position, Vector2.down, 2.0f, groundLayer);
 
-        if (groundSensor.isGround)
+        if (hit.collider != null)
         {
-
+            Vector2 normal = hit.normal;
             // 坂道の法線と同じ向きならば、足した時の絶対値が多くなる。絶対値が多い方で下っていることを検出する
+            Vector2 tangent = new Vector2(normal.y, -normal.x).normalized;
+            // 入力に基づいて移動速度を計算
+            Vector2 moveVelocity = tangent * moveInput * moveSpeed;
+            // Rigidbody2Dに移動速度を適用
+            rb.velocity = new Vector2(moveVelocity.x, rb.velocity.y);
             if (Math.Abs(-hit.normal.x + moveInput) < Math.Abs(hit.normal.x + moveInput))
             {
-                rb.velocity += new Vector2(0.0f, -0.5f);
+                rb.velocity += new Vector2(0.0f, -5.0f);
             }
         }
+
+
+
+        /*RaycastHit2D currentHit = Physics2D.Raycast(groundCheck.position, Vector2.down, 5.0f, groundLayer);
+
+        Debug.Log(currentHit.normal.y + "," + previousHit.normal.y);
+        if (currentHit != previousHit)
+        {
+            Debug.Log("testes");
+            if (currentHit.normal.y < previousHit.normal.y)
+            {
+                rb.velocity += new Vector2(0.0f, -100.0f);
+            }
+
+            previousHit = currentHit;
+        }
+
+        if (currentHit.collider != null)
+        {
+            Vector2 normal = currentHit.normal;
+            // 坂道の法線と同じ向きならば、足した時の絶対値が多くなる。絶対値が多い方で下っていることを検出する
+            Vector2 tangent = new Vector2(normal.y, -normal.x).normalized;
+            // 入力に基づいて移動速度を計算
+            Vector2 moveVelocity = tangent * moveInput * moveSpeed;
+            // Rigidbody2Dに移動速度を適用
+            rb.velocity = new Vector2(moveVelocity.x, rb.velocity.y);
+
+            if (Math.Abs(-currentHit.normal.x + moveInput) < Math.Abs(currentHit.normal.x + moveInput))
+            {
+                rb.velocity += new Vector2(0.0f, -5.0f);
+            }
+        }*/
     }
 
     private void JumpUpdate()
@@ -111,6 +167,7 @@ public class PlayerController : MonoBehaviour
     {
         currentSkillGauge = new int[2] { 100, 1000 };
         zeroGravityPower = 1000.0F;
+        previousHit = Physics2D.Raycast(groundCheck.position, Vector2.down, 5.0f, groundLayer);
     }
 
     void Start()
@@ -282,7 +339,6 @@ public class PlayerController : MonoBehaviour
         float knockBackPower = KnockBack_X;
         if (rightFacing)
             knockBackPower *= -1.0f;
-        Debug.Log("Test" + knockBackPower);
         // ノックバック適用
         // プレイヤーのRigidbody2Dに力を加える
         rb.AddForce(new Vector2(knockBackPower, 30.0f), ForceMode2D.Impulse);
