@@ -147,7 +147,7 @@ GameObject:
   - component: {fileID: 335957082}
   m_Layer: 0
   m_Name: HitBoxRight
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -16814,6 +16814,7 @@ GameObject:
   - component: {fileID: 800077714}
   - component: {fileID: 800077716}
   - component: {fileID: 800077717}
+  - component: {fileID: 800077718}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -16918,7 +16919,6 @@ MonoBehaviour:
   nowHP: 0
   maxHP: 0
   isDefeat: 0
-  knockbackForce: 0.25
   knockbackDuration: 1.4
   isKnockBack: 0
   zeroGravityPower: 0
@@ -16986,9 +16986,54 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.10393143, y: 0}
-  m_Size: {x: 1.314537, y: 6.86}
+  m_Offset: {x: 0.13676071, y: 0}
+  m_Size: {x: 1.4727707, y: 6.86}
   m_Direction: 0
+--- !u!61 &800077718
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 800077710}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 1
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0.010471344, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 3.37, y: 6.86}
+    newSize: {x: 3.37, y: 6.86}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 4.1448593, y: 6.86}
+  m_EdgeRadius: 0
 --- !u!1 &810205297
 GameObject:
   m_ObjectHideFlags: 0
@@ -17916,7 +17961,7 @@ GameObject:
   - component: {fileID: 1645103594}
   m_Layer: 0
   m_Name: HitBoxLeft
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -18574,6 +18619,14 @@ PrefabInstance:
     - target: {fileID: 3939872009516310444, guid: f4872b5b975902542a57cb0cced5ad63, type: 3}
       propertyPath: m_Name
       value: Area
+      objectReference: {fileID: 0}
+    - target: {fileID: 6598947432552629714, guid: f4872b5b975902542a57cb0cced5ad63, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -2.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 6598947432552629714, guid: f4872b5b975902542a57cb0cced5ad63, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.27
       objectReference: {fileID: 0}
     - target: {fileID: 6890412978144186793, guid: f4872b5b975902542a57cb0cced5ad63, type: 3}
       propertyPath: m_LocalPosition.x

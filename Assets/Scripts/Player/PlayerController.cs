@@ -48,8 +48,7 @@ public class PlayerController : MonoBehaviour
     private const int InitialHP = 5;           // 初期HP(最大HP)
     private const float InvicibleTime = 2.0f;   // 被ダメージ直後の無敵時間(秒)
     private const float StuckTime = 0.5f;       // 被ダメージ直後の硬直時間(秒)
-    public const float KnockBack_X = 20.0f;     // 被ダメージ時ノックバック力(x方向)
-    public float knockbackForce = 5f;         // ノックバックの強さ
+    public const float KnockBack_X = 5.0f;     // 被ダメージ時ノックバック力(x方向)
     public float knockbackDuration = 1.0f;    // ノックバックの持続時間
     private float knockbackTimer = 0.0f;        // ノックバックの時間を計測
     public bool isKnockBack = false;
@@ -462,7 +461,7 @@ public class PlayerController : MonoBehaviour
             knockBackPower *= -1.0f;
         // ノックバック適用
         // プレイヤーのRigidbody2Dに力を加える
-        rb.AddForce(new Vector2(knockBackPower, 3.0f), ForceMode2D.Impulse);
+        rb.AddForce(new Vector2(knockBackPower, 5.0f), ForceMode2D.Impulse);
         // 無敵時間発生
         invincibleTime = InvicibleTime;
         if (invincibleTime > 0.0f) { }
