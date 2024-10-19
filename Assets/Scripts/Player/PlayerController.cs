@@ -1,8 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using BotController;
+using JetBrains.Annotations;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 
 public class PlayerController : MonoBehaviour
@@ -10,11 +13,13 @@ public class PlayerController : MonoBehaviour
 
 
     private SpriteRenderer spriteRenderer;
+    private Bot bot;
     public bool rightFacing; // 向いている方向(true.右向き false:左向き)
 
     public float moveSpeed = 2f;
     public Transform groundCheck;
     public LayerMask groundLayer;
+    bool isnuketa = false;
 
     public float jumpPower = 20.0f;
 
@@ -56,73 +61,42 @@ public class PlayerController : MonoBehaviour
     public float testgroundcheck;
     RaycastHit2D previousHit;
     bool isGrounded = false;
-    void OnCollisionEnter2D(Collision2D collision)
-    {
-        // 接地するレイヤーの判定
-        if (collision.gameObject.tag == "Ground")
-        {
-            isGrounded = true;
-        }
-    }
+    private Vector2 moveDirection;
 
-    void OnCollisionExit2D(Collision2D collision)
-    {
-        // 接地から離れた時の処理
-        if (collision.gameObject.tag == "Ground")
-        {
-            isGrounded = false;
-        }
-    }
-    void AdjustSpeedOnSlope(float moveInput)
-    {
-        RaycastHit2D hit = Physics2D.Raycast(groundCheck.position, Vector2.down, 2.0f, groundLayer);
+    public GameObject GunObject;
 
+    protected HitWall hitWall;
+
+    public List<String> colList = new List<String>();
+    public enum PlayerState
+    {
+        Grounded = 1 << 0,    // 0001
+        OnWall = 1 << 1,      // 0010
+        MoveInput = 1 << 2    // 0100
+    }
+    private Vector2 GetGroundNormal()
+    {
+        // 地面の法線を保存する変数
+        Vector2 groundNormal = Vector2.up; // デフォルトは平坦な道（垂直）
+
+        // 衝突している間の法線ベクトルを取得
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, 5f, groundLayer);
         if (hit.collider != null)
         {
-            Vector2 normal = hit.normal;
-            // 坂道の法線と同じ向きならば、足した時の絶対値が多くなる。絶対値が多い方で下っていることを検出する
-            Vector2 tangent = new Vector2(normal.y, -normal.x).normalized;
-            // 入力に基づいて移動速度を計算
-            Vector2 moveVelocity = tangent * moveInput * moveSpeed;
-            // Rigidbody2Dに移動速度を適用
-            rb.velocity = new Vector2(moveVelocity.x, rb.velocity.y);
-            if (Math.Abs(-hit.normal.x + moveInput) < Math.Abs(hit.normal.x + moveInput))
-            {
-                rb.velocity += new Vector2(0.0f, -5.0f);
-            }
+            groundNormal = hit.normal; // 地面の法線を取得
         }
+        return groundNormal;
+    }
 
+    //下るときに浮かないようにするメソッド
+    void kudatteiru(float moveInput)
+    {
+        RaycastHit2D hit = Physics2D.Raycast(groundCheck.position, Vector2.down, 5.0f, groundLayer);
 
-
-        /*RaycastHit2D currentHit = Physics2D.Raycast(groundCheck.position, Vector2.down, 5.0f, groundLayer);
-
-        Debug.Log(currentHit.normal.y + "," + previousHit.normal.y);
-        if (currentHit != previousHit)
+        if (Math.Abs(-hit.normal.x + moveInput) < Math.Abs(hit.normal.x + moveInput))
         {
-            Debug.Log("testes");
-            if (currentHit.normal.y < previousHit.normal.y)
-            {
-                rb.velocity += new Vector2(0.0f, -100.0f);
-            }
-
-            previousHit = currentHit;
+            rb.velocity += new Vector2(rb.velocity.x * 0.05f, -15.0f);
         }
-
-        if (currentHit.collider != null)
-        {
-            Vector2 normal = currentHit.normal;
-            // 坂道の法線と同じ向きならば、足した時の絶対値が多くなる。絶対値が多い方で下っていることを検出する
-            Vector2 tangent = new Vector2(normal.y, -normal.x).normalized;
-            // 入力に基づいて移動速度を計算
-            Vector2 moveVelocity = tangent * moveInput * moveSpeed;
-            // Rigidbody2Dに移動速度を適用
-            rb.velocity = new Vector2(moveVelocity.x, rb.velocity.y);
-
-            if (Math.Abs(-currentHit.normal.x + moveInput) < Math.Abs(currentHit.normal.x + moveInput))
-            {
-                rb.velocity += new Vector2(0.0f, -5.0f);
-            }
-        }*/
     }
 
     private void JumpUpdate()
@@ -168,11 +142,13 @@ public class PlayerController : MonoBehaviour
         currentSkillGauge = new int[2] { 100, 1000 };
         zeroGravityPower = 1000.0F;
         previousHit = Physics2D.Raycast(groundCheck.position, Vector2.down, 5.0f, groundLayer);
+        hitWall = GetComponentInChildren<HitWall>();
+
     }
 
     void Start()
     {
-
+        bot = GetComponentInChildren<Bot>();
         PhysicsMaterial2D lowFrictionMaterial = new PhysicsMaterial2D();
         groundSensor = GetComponentInChildren<ActorGroundSensor>();
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -189,6 +165,11 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        //        Debug.Log(isGrounded);
+        foreach (string name in colList)
+        {
+            // Debug.Log(name);
+        }
         if (Input.GetMouseButtonDown(1))
         {
             UseZeroGravity();
@@ -249,11 +230,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
     public void Move()
     {
-        // 移動処理
         float moveInput = Input.GetAxis("Horizontal");
+        moveDirection = new Vector2(-moveInput, 0).normalized;
+        // 移動処理
         if (moveInput > 0.0f)
         {
 
@@ -272,28 +253,168 @@ public class PlayerController : MonoBehaviour
             spriteRenderer.flipX = true;
         }
 
-        if (groundSensor.isGround)
+        //接地、壁接触あり、移動入力あり
+        if (hitWall.isTouchingGround && hitWall.isTouchingWall && Math.Abs(moveInput) > 0.0f)
         {
-            if (Math.Abs(moveInput) > moveInputDeadZone)
-            {
-                rb.constraints = RigidbodyConstraints2D.FreezeRotation;  // 回転のみ固定
-                rb.velocity = new Vector2(moveSpeed * moveInput, rb.velocity.y);
-                AdjustSpeedOnSlope(moveInput);  // 坂道の速度調整
-            }
-            else
-            {
-                // 移動入力がない場合はピタッと止まるようにする
-                rb.velocity = new Vector2(0f, rb.velocity.y);  // X軸方向の速度を0にする
-                                                               // 坂道で滑らないようにX軸のみ固定する
-                rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
-            }
-        }
-        else
-        {
-            // 空中にいるときは制約を解除して自然な挙動にする
+            Debug.Log("1★");
+
+            rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
+            rb.velocity += new Vector2(0.0f, -5.0f);
+
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         }
 
+        //非接地、壁接触あり、移動入力あり
+        if (!hitWall.isTouchingGround && hitWall.isTouchingWall && Math.Abs(moveInput) > 0.0f)
+        {
+            Debug.Log("2★");
+            rb.velocity += new Vector2(0.0f, -5.0f);
+        }
+        //接地、壁接触なし、移動入力あり
+        if (hitWall.isTouchingGround && !hitWall.isTouchingWall && Math.Abs(moveInput) > 0.0f)
+        {
+            if (Math.Abs(moveInput) > moveInputDeadZone)
+            {
+                Debug.Log("3★");
+                rb.constraints = RigidbodyConstraints2D.FreezeRotation;  // 回転のみ固定
+                                                                         // 坂道に沿った速度の設定
+                AdjustVelocityAlongSlope();
+                kudatteiru(moveInput);
+            }
+        }
+        //非接地、壁接触なし、移動入力あり
+        if (!hitWall.isTouchingGround && !hitWall.isTouchingWall && Math.Abs(moveInput) > 0.0f)
+        {
+            Debug.Log("4★");
+            rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        }
+        //接地、壁接触あり、移動入力なし
+        if (hitWall.isTouchingGround && hitWall.isTouchingWall && Math.Abs(moveInput) <= 0.0f)
+        {
+            Debug.Log("5★");
+            if (Math.Abs(moveInput) <= moveInputDeadZone)
+            {
+                rb.velocity += new Vector2(0.0f, -5.0f);
+
+            }
+
+        }
+
+        //非接地、壁接触あり、移動入力なし
+        if (!hitWall.isTouchingGround && hitWall.isTouchingWall && Math.Abs(moveInput) <= 0.0f)
+        {
+            Debug.Log("6★");
+            rb.velocity += new Vector2(0.0f, -5.0f);
+        }
+
+        //接地、壁接触なし、移動入力なし
+        if (hitWall.isTouchingGround && !hitWall.isTouchingWall && Math.Abs(moveInput) <= 0.0f)
+        {
+            if (Math.Abs(moveInput) <= moveInputDeadZone)
+            {
+                Debug.Log("7★");
+                // 移動入力がない場合はピタッと止まるようにする
+                rb.velocity = new Vector2(0f, 0f);  // X軸方向の速度を0にする
+                                                    // 坂道で滑らないようにX軸のみ固定する
+                rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
+
+            }
+        }
+
+        //非接地、壁接触なし、移動入力なし
+        if (!hitWall.isTouchingGround && !hitWall.isTouchingWall && Math.Abs(moveInput) <= 0.0f)
+        {
+            Debug.Log("8★");
+            rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+
+        }
+
+
+
+
+        /*
+
+                if (!hitWall.isTouchingGround && hitWall.isTouchingWall && Math.Abs(moveInput) > 0.0f)
+                {
+                    Debug.Log("1★");
+                    rb.velocity += new Vector2(0.0f, -5.0f);
+                }
+
+                if (hitWall.isTouchingGround)
+                {
+
+                    if (Math.Abs(moveInput) > moveInputDeadZone && !hitWall.isTouchingWall)
+                    {
+
+                        Debug.Log("2★");
+                        rb.constraints = RigidbodyConstraints2D.FreezeRotation;  // 回転のみ固定
+                                                                                 // 坂道に沿った速度の設定
+                        AdjustVelocityAlongSlope();
+                        kudatteiru(moveInput);
+                    }
+                    else if (Math.Abs(moveInput) <= moveInputDeadZone && !hitWall.isTouchingWall)
+                    {
+
+                        Debug.Log("3★");
+                        // 移動入力がない場合はピタッと止まるようにする
+                        rb.velocity = new Vector2(0f, 0f);  // X軸方向の速度を0にする
+                                                            // 坂道で滑らないようにX軸のみ固定する
+                        rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
+                    }
+
+                }
+                else if (!hitWall.isTouchingWall)
+                {
+                    Debug.Log("4★");
+                    rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
+                    rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+                }*/
+
+
+        if (!hitWall.isTouchingGround && isnuketa)
+        {
+
+            rb.velocity += new Vector2(0.0f, -10.0f);
+            isnuketa = false;
+        }
+
+    }
+
+    private void AdjustVelocityAlongSlope()
+    {
+        // 現在の速度を坂道に沿って投影
+        Vector2 groundNormal = GetGroundNormal(); // 現在接地している地面の法線ベクトルを取得
+        Vector2 moveAlongSlope = Vector2.Perpendicular(groundNormal).normalized * moveDirection.x;
+
+        rb.velocity = moveAlongSlope * moveSpeed;
+    }
+
+
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        if (collision.tag == "Ground")
+        {
+            colList.Add(collision.gameObject.tag);
+            isGrounded = true;
+            return;
+        }
+        else
+        {
+            colList.Remove(collision.gameObject.tag);
+            isGrounded = false;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.tag == "Ground")
+        {
+            colList.Remove(collision.gameObject.tag);
+            isGrounded = false;
+            isnuketa = true;
+        }
     }
 
     #region 戦闘関連
@@ -341,7 +462,7 @@ public class PlayerController : MonoBehaviour
             knockBackPower *= -1.0f;
         // ノックバック適用
         // プレイヤーのRigidbody2Dに力を加える
-        rb.AddForce(new Vector2(knockBackPower, 30.0f), ForceMode2D.Impulse);
+        rb.AddForce(new Vector2(knockBackPower, 3.0f), ForceMode2D.Impulse);
         // 無敵時間発生
         invincibleTime = InvicibleTime;
         if (invincibleTime > 0.0f) { }
@@ -365,16 +486,17 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void ShotAction_Normal()
     {
+
         // 弾の方向を取得
-        float bulletAngle = 0.0f; // 右向き
-                                  // アクターが左向きなら弾も左向きに進む
+        float bulletAngle = -1 * bot.GetCursorAngle() + 90.0f; // 右向き
+                                                               // アクターが左向きなら弾も左向きに進む
         if (!rightFacing)
             bulletAngle = 180.0f;
 
         // 弾丸オブジェクト生成・設定
         GameObject obj = Instantiate( // オブジェクト新規生成
             weaponBulletPrefab,     // 生成するオブジェクトのプレハブ
-            transform.position,     // 生成したオブジェクトの初期座標
+            GunObject.transform.position,     // 生成したオブジェクトの初期座標
             Quaternion.identity);   // 初期Rotation(傾き)
                                     // 弾丸設定
         obj.GetComponent<ActorNormalShot>().Init(
@@ -392,4 +514,30 @@ public class PlayerController : MonoBehaviour
         isZeroGravity = true;
         rb.gravityScale = 0.0f;
     }
+
+
+    /*private String CheckColObjectTag()
+    {
+        bool hasGround = false;
+        bool hasWall = false;
+        foreach (string name in colList)
+        {
+            if (name == "Ground")
+            {
+                hasGround = true;
+            }
+            if (name == "Wall")
+            {
+                hasWall = true;
+            }
+
+            // もし両方のタグが見つかったら、早めに終了
+            if (hasGround && hasWall)
+            {
+                return "Ground,Wall"; // 両方のタグが見つかった場合にtrueを返す
+            }
+
+        }
+        return null;
+    }*/
 }

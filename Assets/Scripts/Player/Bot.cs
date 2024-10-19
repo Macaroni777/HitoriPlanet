@@ -55,7 +55,7 @@ namespace BotController
             SetPosition();
         }
 
-        void SetPosition()
+        public void SetPosition()
         {
             switch (devideDirection(GetCursorAngle()))
             {
@@ -86,7 +86,7 @@ namespace BotController
             }
         }
 
-        float GetCursorAngle()
+        public float GetCursorAngle()
         {
             cursorPosition = cursor.GetCursorPos();
             diff = (Vector3)cursorPosition - playerTransform.position;
