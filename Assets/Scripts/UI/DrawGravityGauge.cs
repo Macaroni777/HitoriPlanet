@@ -8,13 +8,13 @@ public class DrawGravityGauge : MonoBehaviour
     public GameObject GaugeInsideUI;//ゲージ内部UIオブジェクト
 
     float GaugeMax = 1000.0f;//ゲージ最大値
-    protected PlayerController player;
+    protected ZeroGravity zeroGravity;
 
     // Start is called before the first frame update
     void Start()
     {
         Application.targetFrameRate = 60;//FPSを60に固定
-        player = GameObject.Find("Player").GetComponent<PlayerController>();
+        zeroGravity = GameObject.Find("Player").GetComponent<ZeroGravity>();
 
     }
 
@@ -22,7 +22,7 @@ public class DrawGravityGauge : MonoBehaviour
     void Update()
     {
 
-        float remaining = player.zeroGravityPower / GaugeMax;
+        float remaining = zeroGravity.ZeroGravityPower() / GaugeMax;
         GaugeInsideUI.GetComponent<Image>().fillAmount = remaining;
     }
 }

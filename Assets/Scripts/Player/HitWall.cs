@@ -35,13 +35,13 @@ public class HitWall : MonoBehaviour
     private void Update()
     {
         // デバッグ用に現在の状態を確認
-        Debug.Log($"Ground: {isTouchingGround}, Wall: {isTouchingWall}");
+        //Debug.Log($"Ground: {isTouchingGround}, Wall: {isTouchingWall}");
 
         // 両方に触れているかどうかを判定
         if (isTouchingGround && isTouchingWall)
         {
             // 両方に触れている場合の処理
-            Debug.Log("地面と壁の両方に触れています！");
+            //Debug.Log("地面と壁の両方に触れています！");
         }
     }
 }

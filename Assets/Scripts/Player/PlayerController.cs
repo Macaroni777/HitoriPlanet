@@ -14,21 +14,19 @@ public class PlayerController : MonoBehaviour
 
     private SpriteRenderer spriteRenderer;
     private Bot bot;
-    public bool rightFacing; // 向いている方向(true.右向き false:左向き)
+    private bool rightFacing; // 向いている方向(true.右向き false:左向き)
 
-    public float moveSpeed = 2f;
+    private float moveSpeed = 10.0f;
     public Transform groundCheck;
     public LayerMask groundLayer;
-    bool isnuketa = false;
+    private bool isnuketa = false;
 
-    public float jumpPower = 20.0f;
+    private float jumpPower = 12.0f;
 
     private Rigidbody2D rb;
 
     private ActorGroundSensor groundSensor; // アクター接地判定クラス
-
-    float speedMultiplier;
-    public float moveInputDeadZone = 0.2f;
+    private float moveInputDeadZone = 0.25f;
 
     private float remainJumpTime;   // 空中でのジャンプ入力残り受付時間
 
@@ -49,15 +47,11 @@ public class PlayerController : MonoBehaviour
     private const float InvicibleTime = 2.0f;   // 被ダメージ直後の無敵時間(秒)
     private const float StuckTime = 0.5f;       // 被ダメージ直後の硬直時間(秒)
     public const float KnockBack_X = 5.0f;     // 被ダメージ時ノックバック力(x方向)
-    public float knockbackDuration = 1.0f;    // ノックバックの持続時間
+    private float knockbackDuration = 1.4f;    // ノックバックの持続時間
     private float knockbackTimer = 0.0f;        // ノックバックの時間を計測
-    public bool isKnockBack = false;
-
-    bool isZeroGravity = false;
-    public float zeroGravityPower;
+    private bool isKnockBack = false;
     public int skillNumber = 2;
     public int[] currentSkillGauge;
-    public float testgroundcheck;
     RaycastHit2D previousHit;
     bool isGrounded = false;
     private Vector2 moveDirection;
@@ -65,14 +59,14 @@ public class PlayerController : MonoBehaviour
     public GameObject GunObject;
 
     protected HitWall hitWall;
+    protected ZeroGravity zeroGravity;
 
-    public List<String> colList = new List<String>();
-    public enum PlayerState
+    public Rigidbody2D Rb()
     {
-        Grounded = 1 << 0,    // 0001
-        OnWall = 1 << 1,      // 0010
-        MoveInput = 1 << 2    // 0100
+        return rb;
     }
+
+
     private Vector2 GetGroundNormal()
     {
         // 地面の法線を保存する変数
@@ -88,7 +82,7 @@ public class PlayerController : MonoBehaviour
     }
 
     //下るときに浮かないようにするメソッド
-    void kudatteiru(float moveInput)
+    void GoDownSlope(float moveInput)
     {
         RaycastHit2D hit = Physics2D.Raycast(groundCheck.position, Vector2.down, 5.0f, groundLayer);
 
@@ -138,11 +132,10 @@ public class PlayerController : MonoBehaviour
 
     void Awake()
     {
+        zeroGravity = GetComponent<ZeroGravity>();
         currentSkillGauge = new int[2] { 100, 1000 };
-        zeroGravityPower = 1000.0F;
         previousHit = Physics2D.Raycast(groundCheck.position, Vector2.down, 5.0f, groundLayer);
         hitWall = GetComponentInChildren<HitWall>();
-
     }
 
     void Start()
@@ -164,25 +157,6 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        //        Debug.Log(isGrounded);
-        foreach (string name in colList)
-        {
-            // Debug.Log(name);
-        }
-        if (Input.GetMouseButtonDown(1))
-        {
-            UseZeroGravity();
-        }
-        if (isZeroGravity)
-        {
-            zeroGravityPower -= Time.deltaTime * 500;
-            if (zeroGravityPower <= 0.0f)
-            {
-                rb.gravityScale = 1.0f;
-                isZeroGravity = false;
-            }
-        }
-
         if (!isKnockBack)
         {
             Move();
@@ -228,7 +202,6 @@ public class PlayerController : MonoBehaviour
                 return;
         }
     }
-
     public void Move()
     {
         float moveInput = Input.GetAxis("Horizontal");
@@ -255,7 +228,6 @@ public class PlayerController : MonoBehaviour
         //接地、壁接触あり、移動入力あり
         if (hitWall.isTouchingGround && hitWall.isTouchingWall && Math.Abs(moveInput) > 0.0f)
         {
-            Debug.Log("1★");
 
             rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
             rb.velocity += new Vector2(0.0f, -5.0f);
@@ -264,9 +236,8 @@ public class PlayerController : MonoBehaviour
         }
 
         //非接地、壁接触あり、移動入力あり
-        if (!hitWall.isTouchingGround && hitWall.isTouchingWall && Math.Abs(moveInput) > 0.0f)
+        if (!hitWall.isTouchingGround && hitWall.isTouchingWall && Math.Abs(moveInput) > 0.0f && !zeroGravity.IsZeroGravity())
         {
-            Debug.Log("2★");
             rb.velocity += new Vector2(0.0f, -5.0f);
         }
         //接地、壁接触なし、移動入力あり
@@ -274,24 +245,21 @@ public class PlayerController : MonoBehaviour
         {
             if (Math.Abs(moveInput) > moveInputDeadZone)
             {
-                Debug.Log("3★");
                 rb.constraints = RigidbodyConstraints2D.FreezeRotation;  // 回転のみ固定
                                                                          // 坂道に沿った速度の設定
                 AdjustVelocityAlongSlope();
-                kudatteiru(moveInput);
+                GoDownSlope(moveInput);
             }
         }
         //非接地、壁接触なし、移動入力あり
-        if (!hitWall.isTouchingGround && !hitWall.isTouchingWall && Math.Abs(moveInput) > 0.0f)
+        if (!hitWall.isTouchingGround && !hitWall.isTouchingWall && Math.Abs(moveInput) > 0.0f && !zeroGravity.IsZeroGravity())
         {
-            Debug.Log("4★");
             rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         }
         //接地、壁接触あり、移動入力なし
         if (hitWall.isTouchingGround && hitWall.isTouchingWall && Math.Abs(moveInput) <= 0.0f)
         {
-            Debug.Log("5★");
             if (Math.Abs(moveInput) <= moveInputDeadZone)
             {
                 rb.velocity += new Vector2(0.0f, -5.0f);
@@ -300,10 +268,9 @@ public class PlayerController : MonoBehaviour
 
         }
 
-        //非接地、壁接触あり、移動入力なし
-        if (!hitWall.isTouchingGround && hitWall.isTouchingWall && Math.Abs(moveInput) <= 0.0f)
+        //非接地、壁接触あり、移動入力なし、無重力なし
+        if (!hitWall.isTouchingGround && hitWall.isTouchingWall && Math.Abs(moveInput) <= 0.0f && !zeroGravity.IsZeroGravity())
         {
-            Debug.Log("6★");
             rb.velocity += new Vector2(0.0f, -5.0f);
         }
 
@@ -312,7 +279,6 @@ public class PlayerController : MonoBehaviour
         {
             if (Math.Abs(moveInput) <= moveInputDeadZone)
             {
-                Debug.Log("7★");
                 // 移動入力がない場合はピタッと止まるようにする
                 rb.velocity = new Vector2(0f, 0f);  // X軸方向の速度を0にする
                                                     // 坂道で滑らないようにX軸のみ固定する
@@ -324,57 +290,13 @@ public class PlayerController : MonoBehaviour
         //非接地、壁接触なし、移動入力なし
         if (!hitWall.isTouchingGround && !hitWall.isTouchingWall && Math.Abs(moveInput) <= 0.0f)
         {
-            Debug.Log("8★");
             rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
         }
 
-
-
-
-        /*
-
-                if (!hitWall.isTouchingGround && hitWall.isTouchingWall && Math.Abs(moveInput) > 0.0f)
-                {
-                    Debug.Log("1★");
-                    rb.velocity += new Vector2(0.0f, -5.0f);
-                }
-
-                if (hitWall.isTouchingGround)
-                {
-
-                    if (Math.Abs(moveInput) > moveInputDeadZone && !hitWall.isTouchingWall)
-                    {
-
-                        Debug.Log("2★");
-                        rb.constraints = RigidbodyConstraints2D.FreezeRotation;  // 回転のみ固定
-                                                                                 // 坂道に沿った速度の設定
-                        AdjustVelocityAlongSlope();
-                        kudatteiru(moveInput);
-                    }
-                    else if (Math.Abs(moveInput) <= moveInputDeadZone && !hitWall.isTouchingWall)
-                    {
-
-                        Debug.Log("3★");
-                        // 移動入力がない場合はピタッと止まるようにする
-                        rb.velocity = new Vector2(0f, 0f);  // X軸方向の速度を0にする
-                                                            // 坂道で滑らないようにX軸のみ固定する
-                        rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
-                    }
-
-                }
-                else if (!hitWall.isTouchingWall)
-                {
-                    Debug.Log("4★");
-                    rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
-                    rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-                }*/
-
-
         if (!hitWall.isTouchingGround && isnuketa)
         {
-
             rb.velocity += new Vector2(0.0f, -10.0f);
             isnuketa = false;
         }
@@ -395,13 +317,11 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.tag == "Ground")
         {
-            colList.Add(collision.gameObject.tag);
             isGrounded = true;
             return;
         }
         else
         {
-            colList.Remove(collision.gameObject.tag);
             isGrounded = false;
         }
     }
@@ -410,7 +330,6 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.tag == "Ground")
         {
-            colList.Remove(collision.gameObject.tag);
             isGrounded = false;
             isnuketa = true;
         }
@@ -505,38 +424,4 @@ public class PlayerController : MonoBehaviour
             5.0f);      // 存在時間
     }
     #endregion
-
-
-    //無重力に関するメソッド
-    void UseZeroGravity()
-    {
-        isZeroGravity = true;
-        rb.gravityScale = 0.0f;
-    }
-
-
-    /*private String CheckColObjectTag()
-    {
-        bool hasGround = false;
-        bool hasWall = false;
-        foreach (string name in colList)
-        {
-            if (name == "Ground")
-            {
-                hasGround = true;
-            }
-            if (name == "Wall")
-            {
-                hasWall = true;
-            }
-
-            // もし両方のタグが見つかったら、早めに終了
-            if (hasGround && hasWall)
-            {
-                return "Ground,Wall"; // 両方のタグが見つかった場合にtrueを返す
-            }
-
-        }
-        return null;
-    }*/
 }
