@@ -16,9 +16,12 @@ namespace MoreMountains.CorgiEngine
 		/// whether or not this ability should reset the CharacterJump's flags on every bounce 
 		[Tooltip("whether or not this ability should reset the CharacterJump's flags on every bounce")]
 		public bool SetJumpFlags = true;
-        
+
 		protected CharacterJump _characterJump;
+		protected bool _collidingAboveLastFrame = false;
 		protected bool _collidingBelowLastFrame = false;
+		protected bool _collidingRightLastFrame = false;
+		protected bool _collidingLeftLastFrame = false;
 
 		/// <summary>
 		/// On initialization we store our CharacterJump ability
@@ -34,9 +37,42 @@ namespace MoreMountains.CorgiEngine
 		/// </summary>
 		public override void LateProcessAbility()
 		{
-			if ((_controller.State.IsCollidingBelow && !_collidingBelowLastFrame))
+			if (_controller.State.IsCollidingAbove && !_collidingAboveLastFrame)
 			{
-				_controller.SetVerticalForce(BounceForce);
+				_controller.SetVerticalForce(-BounceForce);
+				_characterJump.CanJumpStop = false;
+				if (SetJumpFlags)
+				{
+					_characterJump.SetJumpFlags();
+				}
+				MMCharacterEvent.Trigger(_character, MMCharacterEventTypes.Bounce);
+			}
+
+			if (_controller.State.IsCollidingBelow && !_collidingBelowLastFrame)
+			{
+				_controller.SetVerticalForce(BounceForce); //ごり押しで反射させてるっぽい
+				_characterJump.CanJumpStop = false;
+				if (SetJumpFlags)
+				{
+					_characterJump.SetJumpFlags();
+				}
+				MMCharacterEvent.Trigger(_character, MMCharacterEventTypes.Bounce);
+			}
+
+			if (_controller.State.IsCollidingRight && !_collidingRightLastFrame)
+			{
+				_controller.SetHorizontalForce(-BounceForce);
+				_characterJump.CanJumpStop = false;
+				if (SetJumpFlags)
+				{
+					_characterJump.SetJumpFlags();
+				}
+				MMCharacterEvent.Trigger(_character, MMCharacterEventTypes.Bounce);
+			}
+
+			if (_controller.State.IsCollidingLeft && !_collidingLeftLastFrame)
+			{
+				_controller.SetHorizontalForce(BounceForce);
 				_characterJump.CanJumpStop = false;
 				if (SetJumpFlags)
 				{

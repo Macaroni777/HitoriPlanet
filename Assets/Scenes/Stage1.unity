@@ -380,7 +380,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 2
-  m_Size: {x: 100, y: 20.48}
+  m_Size: {x: 200, y: 81.92}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -395,7 +395,7 @@ Transform:
   m_GameObject: {fileID: 454307710}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.5, y: 0.1, z: 0.16429836}
+  m_LocalPosition: {x: 52.7, y: 17.3, z: 0.16429836}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -872,7 +872,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -3
+  m_SortingOrder: -4
   m_Sprite: {fileID: 21300000, guid: b826860a1fd9422489bdf4310dc76e6e, type: 3}
   m_Color: {r: 0.7830189, g: 0.4986205, b: 0.4986205, a: 1}
   m_FlipX: 0
@@ -1038,6 +1038,7 @@ GameObject:
   - component: {fileID: 800077718}
   - component: {fileID: 800077717}
   - component: {fileID: 800077739}
+  - component: {fileID: 800077740}
   m_Layer: 9
   m_Name: Player
   m_TagString: Player
@@ -1181,7 +1182,8 @@ MonoBehaviour:
   BlockingMovementStates: 
   BlockingConditionStates: 
   BlockingWeaponStates: 
-  InitialWeapon: {fileID: 0}
+  InitialWeapon: {fileID: 114000010078180980, guid: 284272a33c5227b4c9754dcac131fdff,
+    type: 3}
   CanPickupWeapons: 1
   WeaponAttachment: {fileID: 0}
   ForceWeaponScaleResetOnEquip: 0
@@ -1570,7 +1572,7 @@ MonoBehaviour:
   AbilityStartFeedbacks: {fileID: 0}
   AbilityStopFeedbacks: {fileID: 0}
   AbilityPermitted: 1
-  BlockingMovementStates: 
+  BlockingMovementStates: 1a0000001a000000
   BlockingConditionStates: 
   BlockingWeaponStates: 
   WalkSpeed: 6
@@ -1670,8 +1672,8 @@ MonoBehaviour:
     UseSeparateDecelerationOnGround: 0
     SpeedDecelerationOnGround: 20
     SpeedAccelerationInAir: 5
-    UseSeparateDecelerationInAir: 0
-    SpeedDecelerationInAir: 5
+    UseSeparateDecelerationInAir: 1
+    SpeedDecelerationInAir: 0
     SpeedFactor: 1
     MaximumSlopeAngle: 80
     SlopeAngleSpeedFactor:
@@ -1850,6 +1852,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 569a6d6301f256a408ce86d0934e96d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  AbilityStartFeedbacks: {fileID: 0}
+  AbilityStopFeedbacks: {fileID: 0}
+  AbilityPermitted: 1
+  BlockingMovementStates: 
+  BlockingConditionStates: 
+  BlockingWeaponStates: 
+--- !u!114 &800077740
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 800077710}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5fa321019baa48409c904b77983f8f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AbilityStartFeedbacks: {fileID: 0}
+  AbilityStopFeedbacks: {fileID: 0}
+  AbilityPermitted: 1
+  BlockingMovementStates: 0300000002000000030000000e000000
+  BlockingConditionStates: 
+  BlockingWeaponStates: 
+  BounceForce: 20
+  SetJumpFlags: 0
 --- !u!1 &810205297
 GameObject:
   m_ObjectHideFlags: 0
@@ -3343,6 +3371,16 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 526170521}
     m_Modifications:
+    - target: {fileID: 844437463425510543, guid: f4872b5b975902542a57cb0cced5ad63,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 38.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 844437463425510543, guid: f4872b5b975902542a57cb0cced5ad63,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -45.2
+      objectReference: {fileID: 0}
     - target: {fileID: 3939872009516310444, guid: f4872b5b975902542a57cb0cced5ad63,
         type: 3}
       propertyPath: m_Name
@@ -3414,7 +3452,8 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 7679078914694635188, guid: f4872b5b975902542a57cb0cced5ad63, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f4872b5b975902542a57cb0cced5ad63, type: 3}
@@ -3426,6 +3465,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1517968072}
     m_Modifications:
+    - target: {fileID: 324322440337346939, guid: 85fa557bc4c124f46879c36039225c4c,
+        type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 6200000, guid: dbc84264839913f4fb4600556fca296c, type: 2}
     - target: {fileID: 1493305374476976763, guid: 85fa557bc4c124f46879c36039225c4c,
         type: 3}
       propertyPath: m_TileAssetArray.Array.size

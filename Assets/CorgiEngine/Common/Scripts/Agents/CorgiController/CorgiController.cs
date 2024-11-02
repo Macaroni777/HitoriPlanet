@@ -362,7 +362,7 @@ namespace MoreMountains.CorgiEngine
 		protected Vector2 _speed;
 		protected float _friction = 0;
 		protected float _fallSlowFactor;
-		public float _currentGravity = 0;
+		public float _currentGravity = -30.0f;
 		protected Vector2 _externalForce;
 		protected Vector2 _newPosition;
 		protected Transform _transform;

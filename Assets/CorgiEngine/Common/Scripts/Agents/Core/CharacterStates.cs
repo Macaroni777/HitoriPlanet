@@ -3,13 +3,13 @@ using System.Collections;
 using MoreMountains.Tools;
 
 namespace MoreMountains.CorgiEngine
-{	
+{
 	/// <summary>
 	/// The various states you can use to check if your character is doing something at the current frame
 	/// by Renaud Forestié
 	/// </summary>
 
-	public class CharacterStates 
+	public class CharacterStates
 	{
 		/// The possible character conditions
 		public enum CharacterConditions
@@ -19,12 +19,12 @@ namespace MoreMountains.CorgiEngine
 			Frozen,
 			Paused,
 			Dead,
-			Stunned
+			Stunned,
 		}
 
 		/// The possible Movement States the character can be in. These usually correspond to their own class, 
 		/// but it's not mandatory
-		public enum MovementStates 
+		public enum MovementStates
 		{
 			Null,
 			Idle,
@@ -32,7 +32,7 @@ namespace MoreMountains.CorgiEngine
 			Falling,
 			Running,
 			Crouching,
-			Crawling, 
+			Crawling,
 			Dashing,
 			LookingUp,
 			WallClinging,
@@ -51,7 +51,8 @@ namespace MoreMountains.CorgiEngine
 			FollowingPath,
 			LedgeHanging,
 			LedgeClimbing,
-			Rolling
+			Rolling,
+			ZeroGavity
 		}
 	}
 }
