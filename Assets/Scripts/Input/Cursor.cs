@@ -6,7 +6,7 @@ public class Cursor : MonoBehaviour
 {
     private Vector2 cursorPos;
     [SerializeField] private Transform cursorTransform;
-    Camera mainCamera;
+    private Camera mainCamera;
     void Start()
     {
         mainCamera = Camera.main;

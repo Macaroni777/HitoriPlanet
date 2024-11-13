@@ -12,7 +12,7 @@ namespace MoreMountains.CorgiEngine
 	{
 		/// the vertical  force to apply at every bounce
 		[Tooltip("the vertical force to apply at every bounce")]
-		public float BounceForce = 20f;
+		public float BounceForce = 1f;
 		/// whether or not this ability should reset the CharacterJump's flags on every bounce 
 		[Tooltip("whether or not this ability should reset the CharacterJump's flags on every bounce")]
 		public bool SetJumpFlags = true;

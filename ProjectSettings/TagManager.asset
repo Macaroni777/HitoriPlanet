@@ -9,8 +9,8 @@ TagManager:
   - Background
   - NoMask
   - Ground
-  - Wall
   - Enemy
+  - Wall
   layers:
   - Default
   - TransparentFX

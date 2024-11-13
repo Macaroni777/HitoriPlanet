@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PlayerPrefabs:
-  - {fileID: 4781275251527744661, guid: 5f3a9196a58f20249905e5383e5408de, type: 3}
+  - {fileID: 592044000940327051, guid: 61ff77b6f0e0e8842be4bb14644d0544, type: 3}
   AutoAttributePlayerIDs: 1
   SceneCharacters: []
   DebugSpawn: {fileID: 0}
@@ -88,8 +88,8 @@ MonoBehaviour:
   ResetPointsOnRestart: 1
   BoundsMode: 0
   LevelBounds:
-    m_Center: {x: 18, y: 6.84, z: 0}
-    m_Extent: {x: 23.46, y: 12.8, z: 5}
+    m_Center: {x: 58.6, y: 17.54, z: 0}
+    m_Extent: {x: 67.5, y: 21, z: 5}
   ConvertToColliderBoundsButton: 0
   LoadingSceneMode: 1
   LoadingSceneName: LoadingScreen
